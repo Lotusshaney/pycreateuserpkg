@@ -1,7 +1,11 @@
 Tool for generating packages that create macOS user accounts on
-10.8-10.14
+10.8-10.15
 
-Note: in 10.14 when updating an existing account, the following attributes will _NOT_ be updated: `uid` and `home`. This is due to new restrictions in Mojave.
+#### NEW 13-Aug-2019:
+The create_user.py tool in the Scripts directory of the expanded package has been replaced by a compiled createuser tool written in Objective-C. (See the createuser directory for the source). This eliminates the dependency on Apple Python for the package itself to work on the current boot volume.
+
+#### Note:
+in 10.14 when updating an existing account, the following attributes will _NOT_ be updated: `uid` and `home`. This is due to new restrictions in Mojave.
 
 
 ```
@@ -11,26 +15,45 @@ Usage: createuserpkg [options] /path/to/output.pkg
 Options:
   -h, --help            show this help message and exit
 
-  User Options:
+  Required User Options:
     -n NAME, --name=NAME
-                        User shortname. Required.
-    -u UID, --uid=UID   User uid. Required.
+                        User shortname. REQUIRED.
+    -u UID, --uid=UID   User uid. REQUIRED.
+
+  Required Package Options:
+    -V VERSION, --version=VERSION
+                        Package version number. REQUIRED.
+    -i IDENTIFIER, --identifier=IDENTIFIER
+                        Package identifier. REQUIRED.
+
+  Optional User Options:
     -p PASSWORD, --password=PASSWORD
-                        User password. Required.
+                        User password. If this is not provided, interactively
+                        prompt for password.
     -f FULLNAME, --fullname=FULLNAME
                         User full name. Optional.
     -g GID, --gid=GID   User gid. Optional.
+    -G GENERATEDUID, --generateduid=GENERATEDUID
+                        GeneratedUID (UUID). Optional.
     -H HOME, --home=HOME
                         Path to user home directory. Optional.
     -s SHELL, --shell=SHELL
                         User shell path. Optional.
     -a, --admin         User account should be added to admin group.
     -A, --autologin     User account should automatically login.
+    --hidden            User account should be hidden.
 
-  Package Options:
-    -V VERSION, --version=VERSION
-                        Package version number. Required.
-    -i IDENTIFIER, --identifier=IDENTIFIER
-                        Package identifier. Required.
+```
 
+#### Example:
+
+Making a local admin pkg with shortname "localadmin" and uid 501:
+
+```
+$ ./createuserpkg -n localadmin -u 501 -a -i com.foo.localadminpkg -V 1.0 localadmin.pkg
+Password: ********
+Password (again): ********
+pkgbuild: Inferring bundle components from contents of /var/folders/tc/sd4_mtvj14jdy7cg21m2gmcw000495/T/tmpj0FQ8n/create_user
+pkgbuild: Adding top-level postinstall script
+pkgbuild: Wrote package to localadmin.pkg
 ```

@@ -21,6 +21,7 @@ on macOS. Much code borrowed and/or inpsired by Per Olofsson's CreateUserPkg'''
 import optparse
 import sys
 import getpass
+import os
 
 from locallibs import kcpassword
 from locallibs import shadowhash
@@ -58,6 +59,9 @@ def main():
     optional_user_options.add_option('--gid', '-g', help='User gid. Optional.')
     optional_user_options.add_option(
         '--generateduid', '-G', help='GeneratedUID (UUID). Optional.')
+    optional_user_options.add_option(
+        '--hint', help='User password hint. Optional.')
+
     optional_user_options.add_option(
         '--home', '-H', help='Path to user home directory. Optional.')
     optional_user_options.add_option(
@@ -119,6 +123,8 @@ def main():
         user_data['shell'] = options.shell
     if options.hidden:
         user_data['IsHidden'] = u'YES'
+    if options.hint:
+        user_data['hint'] = options.hint
 
     user_plist = userplist.generate(user_data)
 
@@ -133,8 +139,10 @@ def main():
     if options.admin:
         pkg_data['is_admin'] = True
 
+    createuserpkg_dir = os.path.dirname(os.path.realpath(__file__))
+
     # build the package
-    userpkg.generate(pkg_data)
+    userpkg.generate(pkg_data, createuserpkg_dir)
 
 
 if __name__ == '__main__':
